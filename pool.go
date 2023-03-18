@@ -31,6 +31,10 @@ type Pool struct {
 	segmentSize   int
 }
 
+func (bp *Pool) isUnlimited() bool {
+	return bp.capacity == unLimitedPoolCapacity
+}
+
 func (bp *Pool) capacityInBytes() int {
 	return bp.capacity * bp.segmentSize
 }

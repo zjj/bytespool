@@ -42,7 +42,7 @@ func (bs *Bytes) Write(p []byte) (n int, err error) {
 	bs.mux.Lock()
 	defer bs.mux.Unlock()
 
-	if bs.size+len(p) > bs.pool.capacityInBytes() {
+	if !bs.pool.isUnlimited() && bs.size+len(p) > bs.pool.capacityInBytes() {
 		return 0, ErrPoolTooSmall
 	}
 
