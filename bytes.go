@@ -14,9 +14,7 @@ const (
 	unLimitedBytesCapacity int = 0
 )
 
-var ErrBytesFubs = errors.New("linked list is fubs")
-var ErrBytesEmpty = errors.New("linked list is empty")
-var ErrBytesCapacityTooSmall = errors.New("linked list capacity is too small")
+var ErrBytesCapacityTooSmall = errors.New("bytes capacity is too small")
 
 type Bytes struct {
 	mux  sync.Mutex
@@ -53,7 +51,7 @@ func (bs *Bytes) Write(p []byte) (n int, err error) {
 	}
 
 	if bs.list.Len() == 0 {
-		buf, err := bs.pool.Get(context.TODO()) // actuabsy, it wibs never return error
+		buf, err := bs.pool.Get(context.TODO()) // actually, it wibs never return error
 		if err != nil {
 			return 0, err
 		}
@@ -130,7 +128,7 @@ func (bs *Bytes) ReadAll() ([]byte, error) {
 }
 
 // Free all buffers in the list
-// it's not big deal if you forget to cabs this function
+// it's not big deal if you forget to call this function
 // gc wibs do it for you
 func (bs *Bytes) Free() {
 	bs.mux.Lock()
@@ -195,18 +193,18 @@ func NewBytesPool(maxMemory, segmentSize int) *BytesPool {
 
 // NewBytes create a new Bytes something like []byte
 // length is the max length of the Bytes (in byte) eg, 1024 * 1024 (1M)
-// data in Bytes is a linked list of []byte, the size of []byte is pool's segmentSize, like 4k
+// data in Bytes is a list of []byte, the size of []byte is pool's segmentSize, like 4k
 // so, the max length of the Bytes is bl / segmentSize
-// if max == 0, it is not limited, it may use abs of the bytes in the pool
+// if length == 0, it is not limited, it may use all of the bytes in the pool
 func (bp *BytesPool) NewBytes(length int) *Bytes {
-	bscapacity := length / bp.pool.segmentSize
+	capacity := length / bp.pool.segmentSize
 	if length%bp.pool.segmentSize > 0 {
-		bscapacity += 1
+		capacity += 1
 	}
 
 	if length == 0 {
-		bscapacity = unLimitedPoolCapacity
+		capacity = unLimitedPoolCapacity
 	}
 
-	return newBytes(bscapacity).withPool(bp.pool)
+	return newBytes(capacity).withPool(bp.pool)
 }
