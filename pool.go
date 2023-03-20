@@ -51,10 +51,6 @@ func (bp *Pool) Get(ctx context.Context) (*segment, error) {
 }
 
 func (bp *Pool) Put(seg *segment) {
-	if bp.capacity != unLimitedPoolCapacity {
-		bp.sem.Release(1)
-	}
-
 	// check if the buf is from Pool, do not put it back to pool
 	if len(seg.data) != bp.segmentSize {
 		return
@@ -64,6 +60,9 @@ func (bp *Pool) Put(seg *segment) {
 	seg.size = 0
 	seg.offset = 0
 	bp.pool.Put(seg)
+	if bp.capacity != unLimitedPoolCapacity {
+		bp.sem.Release(1)
+	}
 }
 
 // newPool creates a new buffer pool.
