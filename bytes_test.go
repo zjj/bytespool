@@ -3,7 +3,9 @@ package bytespool
 import (
 	"bytes"
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"testing"
 )
@@ -24,7 +26,7 @@ func TestNewBytes0(t *testing.T) {
 	}
 	fmt.Println("n:", n)
 
-	bb, err := b.ReadAll()
+	bb, err := ioutil.ReadAll(b)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,7 +60,7 @@ func TestNewBytes1(t *testing.T) {
 	}
 	fmt.Println("n:", n)
 
-	bb1, err := b.ReadAll()
+	bb1, err := ioutil.ReadAll(b)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,4 +72,38 @@ func TestNewBytes1(t *testing.T) {
 	if !bytes.Equal(i, append(bb, bb1...)) {
 		t.Fatal("not equal")
 	}
+}
+
+func TestJSONEncoder(t *testing.T) {
+	p := NewBytesPool(1024*100, 1024*4)
+	b := p.NewBytes(1024 * 100)
+	enc := json.NewEncoder(b)
+
+	i := make([]byte, 1024*2)
+	_, err := rand.Read(i)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = enc.Encode(map[string]interface{}{
+		"key1": "value1",
+		"key2": "value2",
+		"key3": i,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	/*
+		x, err := b.ReadAll()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(string(x))
+	*/
+
+	h, err := ioutil.ReadAll(b)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("hi", string(h))
 }

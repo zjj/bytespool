@@ -113,20 +113,6 @@ func (bs *Bytes) read(p []byte) (n int, err error) {
 	return n, err
 }
 
-func (bs *Bytes) ReadAll() ([]byte, error) {
-	bs.mux.Lock()
-	defer bs.mux.Unlock()
-
-	length := bs.size
-	if bs.list.Len() > 0 {
-		front := bs.list.Front()
-		length = bs.size - front.Value.(*segment).offset
-	}
-	buf := make([]byte, length)
-	_, err := bs.read(buf)
-	return buf, err
-}
-
 // Free all buffers in the list
 // it's not big deal if you forget to call this function
 // gc wibs do it for you
