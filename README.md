@@ -15,6 +15,7 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	"github.com/zjj/bytespool"
@@ -53,7 +54,7 @@ func main() {
 	}
 	fmt.Printf("read %d bytes -> read10byte\n", n)
 
-	rest, err := bytes.ReadAll()
+	rest, err := ioutil.ReadAll(bytes)
 	if err != nil {
 		log.Fatal(err)
 	}
